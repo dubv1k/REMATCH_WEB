@@ -225,8 +225,11 @@
 
     .admin-bar {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
       margin-bottom: 12px;
+      flex-wrap: wrap;
     }
 
     .admin-chip {
@@ -251,6 +254,24 @@
       letter-spacing: 0.4px;
     }
 
+    .lang-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .lang-picker label {
+      display: inline-flex;
+      align-items: center;
+      flex-direction: row;
+      margin: 0;
+      padding: 0;
+      color: inherit;
+      gap: 4px;
+    }
+
     .grid.single {
       grid-template-columns: 1fr;
     }
@@ -269,46 +290,56 @@
   <body>
     <div class="page">
       <div class="admin-bar">
+        <div class="lang-picker">
+          <label for="language" id="lang-label">Язык</label>
+          <select id="language">
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
+          </select>
+        </div>
         <div class="admin-chip">
           <span class="pill" id="owner-pill">Гостевой режим</span>
           <button type="button" id="owner-toggle">Вход владельца</button>
         </div>
       </div>
       <header>
-        <div class="title"><span>R</span>Rematch турниры</div>
-        <p class="subtitle">Удобный список турниров в Rematch: добавляйте события с разных площадок, храните ссылки и даты.</p>
+        <div class="title"><span>R</span><span id="title-text">Rematch турниры</span></div>
+        <p class="subtitle" id="subtitle">Удобный список турниров в Rematch: добавляйте события с разных площадок, храните ссылки и даты.</p>
       </header>
 
       <div class="grid" id="grid">
         <section class="panel" id="admin-panel">
           <form id="tournament-form">
             <label>
-              Название турнира
+              <span id="name-label">Название турнира</span>
               <input type="text" id="name" name="name" placeholder="Например, Winter Cup" required />
             </label>
             <label>
-              Площадка / организатор
+              <span id="platform-label">Площадка / организатор</span>
               <input type="text" id="platform" name="platform" placeholder="ESL, Faceit, клуб..." />
             </label>
             <label>
-              Дата
+              <span id="date-label">Дата</span>
               <input type="date" id="date" name="date" />
             </label>
             <label>
-              Ссылка на турнир
+              <span id="link-label">Ссылка на турнир</span>
               <input type="url" id="link" name="link" placeholder="https://..." />
             </label>
             <label>
-              Заметки
+              <span id="notes-label">Заметки</span>
               <textarea id="notes" name="notes" placeholder="Формат, призовой фонд, часовой пояс..."></textarea>
             </label>
-            <button type="submit">Добавить турнир</button>
+            <button type="submit" id="submit-btn">Добавить турнир</button>
           </form>
         </section>
 
         <section class="panel list-panel" id="list-panel">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 style="margin: 0; font-size: 18px;">Список турниров</h2>
+            <h2 style="margin: 0; font-size: 18px;" id="list-title">Список турниров</h2>
           <div class="badge" id="counter">0</div>
         </div>
         <div id="list" class="list" aria-live="polite"></div>
@@ -324,9 +355,176 @@
     const ownerPill = document.getElementById('owner-pill');
     const adminPanel = document.getElementById('admin-panel');
     const grid = document.getElementById('grid');
+    const titleText = document.getElementById('title-text');
+    const subtitle = document.getElementById('subtitle');
+    const listTitle = document.getElementById('list-title');
+    const langLabel = document.getElementById('lang-label');
+    const languageSelect = document.getElementById('language');
+
+    const nameLabel = document.getElementById('name-label');
+    const platformLabel = document.getElementById('platform-label');
+    const dateLabel = document.getElementById('date-label');
+    const linkLabel = document.getElementById('link-label');
+    const notesLabel = document.getElementById('notes-label');
+    const nameInput = document.getElementById('name');
+    const platformInput = document.getElementById('platform');
+    const dateInput = document.getElementById('date');
+    const linkInput = document.getElementById('link');
+    const notesInput = document.getElementById('notes');
+    const submitBtn = document.getElementById('submit-btn');
 
     const OWNER_CODE = 'rematch-admin';
+    const DEFAULT_LANG = 'ru';
+    const translations = {
+      en: {
+        pageTitle: 'Rematch | Tournaments',
+        heading: 'Rematch tournaments',
+        subtitle: 'A clean list of Rematch tournaments: collect events from any platform with links and dates.',
+        guestMode: 'Guest mode',
+        ownerMode: 'Owner mode',
+        ownerLogin: 'Owner login',
+        ownerLogout: 'Exit owner mode',
+        listTitle: 'Tournament list',
+        emptyState: 'No tournaments yet. Add the first one!',
+        dateMissing: 'Date not specified',
+        linkText: 'Open tournament',
+        delete: 'Delete',
+        languageLabel: 'Language',
+        nameLabel: 'Tournament name',
+        namePlaceholder: 'For example, Winter Cup',
+        platformLabel: 'Platform / organizer',
+        platformPlaceholder: 'ESL, Faceit, club...',
+        dateLabel: 'Date',
+        linkLabel: 'Tournament link',
+        linkPlaceholder: 'https://...',
+        notesLabel: 'Notes',
+        notesPlaceholder: 'Format, prize pool, time zone...',
+        addButton: 'Add tournament',
+        ownerPrompt: 'Enter owner access code',
+        ownerError: 'Wrong code. Please try again.',
+        dateLocale: 'en-US',
+      },
+      es: {
+        pageTitle: 'Rematch | Torneos',
+        heading: 'Torneos de Rematch',
+        subtitle: 'Lista sencilla de torneos Rematch: reúne eventos de cualquier plataforma con enlaces y fechas.',
+        guestMode: 'Modo invitado',
+        ownerMode: 'Modo propietario',
+        ownerLogin: 'Acceso del propietario',
+        ownerLogout: 'Salir del modo propietario',
+        listTitle: 'Lista de torneos',
+        emptyState: 'Aún no hay torneos. ¡Agrega el primero!',
+        dateMissing: 'Fecha no indicada',
+        linkText: 'Abrir torneo',
+        delete: 'Eliminar',
+        languageLabel: 'Idioma',
+        nameLabel: 'Nombre del torneo',
+        namePlaceholder: 'Por ejemplo, Winter Cup',
+        platformLabel: 'Plataforma / organizador',
+        platformPlaceholder: 'ESL, Faceit, club...',
+        dateLabel: 'Fecha',
+        linkLabel: 'Enlace al torneo',
+        linkPlaceholder: 'https://...',
+        notesLabel: 'Notas',
+        notesPlaceholder: 'Formato, premio, zona horaria...',
+        addButton: 'Agregar torneo',
+        ownerPrompt: 'Introduce el código de acceso del propietario',
+        ownerError: 'Código incorrecto. Intenta de nuevo.',
+        dateLocale: 'es-ES',
+      },
+      ru: {
+        pageTitle: 'Rematch | Турниры',
+        heading: 'Rematch турниры',
+        subtitle: 'Удобный список турниров в Rematch: добавляйте события с разных площадок, храните ссылки и даты.',
+        guestMode: 'Гостевой режим',
+        ownerMode: 'Режим владельца',
+        ownerLogin: 'Вход владельца',
+        ownerLogout: 'Выйти из режима',
+        listTitle: 'Список турниров',
+        emptyState: 'Пока нет турниров. Добавьте первый!',
+        dateMissing: 'Дата не указана',
+        linkText: 'Перейти к турниру',
+        delete: 'Удалить',
+        languageLabel: 'Язык',
+        nameLabel: 'Название турнира',
+        namePlaceholder: 'Например, Winter Cup',
+        platformLabel: 'Площадка / организатор',
+        platformPlaceholder: 'ESL, Faceit, клуб...',
+        dateLabel: 'Дата',
+        linkLabel: 'Ссылка на турнир',
+        linkPlaceholder: 'https://...',
+        notesLabel: 'Заметки',
+        notesPlaceholder: 'Формат, призовой фонд, часовой пояс...',
+        addButton: 'Добавить турнир',
+        ownerPrompt: 'Введите код доступа владельца',
+        ownerError: 'Неверный код. Проверьте и попробуйте снова.',
+        dateLocale: 'ru-RU',
+      },
+      fr: {
+        pageTitle: 'Rematch | Tournois',
+        heading: 'Tournois Rematch',
+        subtitle: 'Liste simple des tournois Rematch : rassemblez des événements de toutes les plateformes avec liens et dates.',
+        guestMode: 'Mode invité',
+        ownerMode: 'Mode propriétaire',
+        ownerLogin: 'Connexion propriétaire',
+        ownerLogout: 'Quitter le mode propriétaire',
+        listTitle: 'Liste des tournois',
+        emptyState: 'Pas encore de tournois. Ajoutez le premier !',
+        dateMissing: 'Date non indiquée',
+        linkText: 'Ouvrir le tournoi',
+        delete: 'Supprimer',
+        languageLabel: 'Langue',
+        nameLabel: 'Nom du tournoi',
+        namePlaceholder: 'Par exemple, Winter Cup',
+        platformLabel: 'Plateforme / organisateur',
+        platformPlaceholder: 'ESL, Faceit, club...',
+        dateLabel: 'Date',
+        linkLabel: 'Lien du tournoi',
+        linkPlaceholder: 'https://...',
+        notesLabel: 'Notes',
+        notesPlaceholder: 'Format, dotation, fuseau horaire...',
+        addButton: 'Ajouter un tournoi',
+        ownerPrompt: 'Entrez le code d’accès propriétaire',
+        ownerError: 'Code incorrect. Réessayez.',
+        dateLocale: 'fr-FR',
+      },
+      it: {
+        pageTitle: 'Rematch | Tornei',
+        heading: 'Tornei Rematch',
+        subtitle: 'Lista semplice di tornei Rematch: raccogli eventi da ogni piattaforma con link e date.',
+        guestMode: 'Modalità ospite',
+        ownerMode: 'Modalità proprietario',
+        ownerLogin: 'Accesso proprietario',
+        ownerLogout: 'Esci dalla modalità proprietario',
+        listTitle: 'Elenco tornei',
+        emptyState: 'Non ci sono tornei. Aggiungi il primo!',
+        dateMissing: 'Data non indicata',
+        linkText: 'Apri il torneo',
+        delete: 'Elimina',
+        languageLabel: 'Lingua',
+        nameLabel: 'Nome del torneo',
+        namePlaceholder: 'Per esempio, Winter Cup',
+        platformLabel: 'Piattaforma / organizzatore',
+        platformPlaceholder: 'ESL, Faceit, club...',
+        dateLabel: 'Data',
+        linkLabel: 'Link del torneo',
+        linkPlaceholder: 'https://...',
+        notesLabel: 'Note',
+        notesPlaceholder: 'Formato, montepremi, fuso orario...',
+        addButton: 'Aggiungi torneo',
+        ownerPrompt: 'Inserisci il codice di accesso del proprietario',
+        ownerError: 'Codice errato. Riprova.',
+        dateLocale: 'it-IT',
+      },
+    };
+
     let isOwner = localStorage.getItem('rematch:owner') === 'true';
+    let currentLang = localStorage.getItem('rematch:lang') || DEFAULT_LANG;
+
+    function t(key) {
+      const pack = translations[currentLang] || translations[DEFAULT_LANG];
+      return pack[key] ?? translations[DEFAULT_LANG][key] ?? '';
+    }
 
     function loadTournaments() {
       const saved = localStorage.getItem('rematch:tournaments');
@@ -345,20 +543,54 @@
     }
 
     function formatDate(value) {
-      if (!value) return 'Дата не указана';
+      if (!value) return t('dateMissing');
       const date = new Date(value + 'T00:00:00');
-      const formatter = new Intl.DateTimeFormat('ru', { day: '2-digit', month: 'short', year: 'numeric' });
+      const formatter = new Intl.DateTimeFormat(translations[currentLang]?.dateLocale || translations[DEFAULT_LANG].dateLocale, {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
       return formatter.format(date);
+    }
+
+    function updateOwnerUI() {
+      ownerPill.textContent = isOwner ? t('ownerMode') : t('guestMode');
+      ownerToggle.textContent = isOwner ? t('ownerLogout') : t('ownerLogin');
+      form.style.display = isOwner ? 'flex' : 'none';
+      adminPanel.style.display = isOwner ? 'block' : 'none';
+      grid.classList.toggle('single', !isOwner);
     }
 
     function setOwnerMode(enabled) {
       isOwner = enabled;
       localStorage.setItem('rematch:owner', enabled ? 'true' : 'false');
-      ownerPill.textContent = enabled ? 'Режим владельца' : 'Гостевой режим';
-      ownerToggle.textContent = enabled ? 'Выйти из режима' : 'Вход владельца';
-      form.style.display = enabled ? 'flex' : 'none';
-      adminPanel.style.display = enabled ? 'block' : 'none';
-      grid.classList.toggle('single', !enabled);
+      updateOwnerUI();
+      render(tournaments);
+    }
+
+    function applyTranslations() {
+      const lang = translations[currentLang] || translations[DEFAULT_LANG];
+      document.documentElement.lang = currentLang;
+      document.title = lang.pageTitle;
+
+      titleText.textContent = lang.heading;
+      subtitle.textContent = lang.subtitle;
+      listTitle.textContent = lang.listTitle;
+      langLabel.textContent = lang.languageLabel;
+
+      nameLabel.textContent = lang.nameLabel;
+      platformLabel.textContent = lang.platformLabel;
+      dateLabel.textContent = lang.dateLabel;
+      linkLabel.textContent = lang.linkLabel;
+      notesLabel.textContent = lang.notesLabel;
+
+      nameInput.placeholder = lang.namePlaceholder;
+      platformInput.placeholder = lang.platformPlaceholder;
+      linkInput.placeholder = lang.linkPlaceholder;
+      notesInput.placeholder = lang.notesPlaceholder;
+      submitBtn.textContent = lang.addButton;
+
+      updateOwnerUI();
       render(tournaments);
     }
 
@@ -369,7 +601,7 @@
       if (!items.length) {
         const empty = document.createElement('div');
         empty.className = 'empty';
-        empty.textContent = 'Пока нет турниров. Добавьте первый!';
+        empty.textContent = t('emptyState');
         listEl.appendChild(empty);
         return;
       }
@@ -398,7 +630,7 @@
           link.href = item.link;
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
-          link.textContent = 'Перейти к турниру';
+          link.textContent = t('linkText');
           meta.appendChild(link);
         }
 
@@ -417,7 +649,7 @@
           const removeBtn = document.createElement('button');
           removeBtn.type = 'button';
           removeBtn.className = 'delete';
-          removeBtn.textContent = 'Удалить';
+          removeBtn.textContent = t('delete');
           removeBtn.addEventListener('click', () => {
             const filtered = tournaments.filter((entry) => entry.id !== item.id);
             tournaments = filtered;
@@ -436,7 +668,9 @@
     }
 
     let tournaments = loadTournaments();
-    setOwnerMode(isOwner);
+
+    languageSelect.value = translations[currentLang] ? currentLang : DEFAULT_LANG;
+    applyTranslations();
 
     ownerToggle.addEventListener('click', () => {
       if (isOwner) {
@@ -444,13 +678,20 @@
         return;
       }
 
-      const code = prompt('Введите код доступа владельца');
+      const code = prompt(t('ownerPrompt'));
       if (!code) return;
       if (code === OWNER_CODE) {
         setOwnerMode(true);
       } else {
-        alert('Неверный код. Проверьте и попробуйте снова.');
+        alert(t('ownerError'));
       }
+    });
+
+    languageSelect.addEventListener('change', (event) => {
+      const value = event.target.value;
+      currentLang = translations[value] ? value : DEFAULT_LANG;
+      localStorage.setItem('rematch:lang', currentLang);
+      applyTranslations();
     });
 
     form.addEventListener('submit', (event) => {
