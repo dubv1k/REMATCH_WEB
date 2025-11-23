@@ -360,7 +360,7 @@
     const notesInput = document.getElementById('notes');
     const submitBtn = document.getElementById('submit-btn');
 
-    const OWNER_CODE = 'rematch-admin';
+    const OWNER_HASH = '3f3ceafeb1b996efd671d6030510f2b0bb1b1b1e7092f5a5c095479f033ad68a';
     const DEFAULT_LANG = 'en';
     const translations = {
       en: {
@@ -659,19 +659,38 @@
     languageSelect.value = translations[currentLang] ? currentLang : DEFAULT_LANG;
     applyTranslations();
 
-    ownerToggle.addEventListener('click', () => {
+    async function hashString(value) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(value);
+      const digest = await crypto.subtle.digest('SHA-256', data);
+      const bytes = Array.from(new Uint8Array(digest));
+      return bytes.map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function isOwnerCodeValid(input) {
+      if (!input) return false;
+      try {
+        const hashed = await hashString(input);
+        return hashed === OWNER_HASH;
+      } catch (err) {
+        console.error('Owner code validation failed', err);
+        return false;
+      }
+    }
+
+    ownerToggle.addEventListener('click', async () => {
       if (isOwner) {
         setOwnerMode(false);
         return;
       }
 
       const code = prompt(t('ownerPrompt'));
-      if (!code) return;
-      if (code === OWNER_CODE) {
-        setOwnerMode(true);
-      } else {
-        alert(t('ownerError'));
+      if (!(await isOwnerCodeValid(code))) {
+        if (code) alert(t('ownerError'));
+        return;
       }
+
+      setOwnerMode(true);
     });
 
     languageSelect.addEventListener('change', (event) => {
