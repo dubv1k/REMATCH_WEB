@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rematch | Турниры</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171b22;
+      --accent: #7ae0b8;
+      --text: #e7edf6;
+      --muted: #9fb2cc;
+      --danger: #ff8f8f;
+      --border: #1f2530;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 20% 20%, rgba(122, 224, 184, 0.08), transparent 40%),
+        radial-gradient(circle at 80% 0%, rgba(122, 224, 184, 0.08), transparent 35%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 20px 64px;
+    }
+
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 28px;
+      letter-spacing: 0.2px;
+      font-weight: 700;
+    }
+
+    .title span {
+      display: inline-flex;
+      width: 40px;
+      height: 40px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(122, 224, 184, 0.3), rgba(122, 224, 184, 0));
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 720px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0c0f14;
+      color: var(--text);
+      padding: 12px 12px;
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(122, 224, 184, 0.2), rgba(122, 224, 184, 0));
+      border: 1px solid var(--accent);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px 14px;
+      align-items: center;
+    }
+
+    .card.readonly {
+      grid-template-columns: 1fr;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      word-break: break-word;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(122, 224, 184, 0.1);
+      border: 1px solid rgba(122, 224, 184, 0.4);
+      color: var(--accent);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta a {
+      color: var(--accent);
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .meta a:hover {
+      text-decoration: underline;
+    }
+
+    .notes {
+      grid-column: 1 / -1;
+      color: var(--text);
+      opacity: 0.9;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .delete {
+      background: rgba(255, 143, 143, 0.1);
+      border: 1px solid rgba(255, 143, 143, 0.5);
+      color: var(--danger);
+    }
+
+    .muted-box {
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .admin-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+
+    .admin-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(122, 224, 184, 0.08);
+      border: 1px solid rgba(122, 224, 184, 0.35);
+      color: var(--accent);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    @media (max-width: 640px) {
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        justify-content: flex-end;
+      }
+    }
+  </style>
+</head>
+  <body>
+    <div class="page">
+      <div class="admin-bar">
+        <div class="admin-chip">
+          <span class="pill" id="owner-pill">Гостевой режим</span>
+          <button type="button" id="owner-toggle">Вход владельца</button>
+        </div>
+      </div>
+      <header>
+        <div class="title"><span>R</span>Rematch турниры</div>
+        <p class="subtitle">Удобный список турниров в Rematch: добавляйте события с разных площадок, храните ссылки и даты.
+          Добавление и удаление доступно только владельцу сайта через защищённый вход.</p>
+      </header>
+
+      <div class="grid">
+        <section class="panel" id="admin-panel">
+          <form id="tournament-form">
+            <label>
+              Название турнира
+              <input type="text" id="name" name="name" placeholder="Например, Winter Cup" required />
+            </label>
+            <label>
+              Площадка / организатор
+              <input type="text" id="platform" name="platform" placeholder="ESL, Faceit, клуб..." />
+            </label>
+            <label>
+              Дата
+              <input type="date" id="date" name="date" />
+            </label>
+            <label>
+              Ссылка на турнир
+              <input type="url" id="link" name="link" placeholder="https://..." />
+            </label>
+            <label>
+              Заметки
+              <textarea id="notes" name="notes" placeholder="Формат, призовой фонд, часовой пояс..."></textarea>
+            </label>
+            <button type="submit">Добавить турнир</button>
+          </form>
+          <div class="muted-box" id="admin-hint" style="display: none;">
+            Форма добавления скрыта для гостей. Владелец может открыть её через «Вход владельца», чтобы добавлять и
+            удалять турниры. Код доступа хранится только в браузере владельца.
+          </div>
+        </section>
+
+        <section class="panel">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 style="margin: 0; font-size: 18px;">Список турниров</h2>
+          <div class="badge" id="counter">0</div>
+        </div>
+        <div id="list" class="list" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const listEl = document.getElementById('list');
+    const counterEl = document.getElementById('counter');
+    const form = document.getElementById('tournament-form');
+    const adminHint = document.getElementById('admin-hint');
+    const ownerToggle = document.getElementById('owner-toggle');
+    const ownerPill = document.getElementById('owner-pill');
+
+    const OWNER_CODE = 'rematch-admin';
+    let isOwner = localStorage.getItem('rematch:owner') === 'true';
+
+    function loadTournaments() {
+      const saved = localStorage.getItem('rematch:tournaments');
+      if (!saved) return [];
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        console.error('Не удалось прочитать сохранённые турниры', err);
+        return [];
+      }
+    }
+
+    function saveTournaments(items) {
+      localStorage.setItem('rematch:tournaments', JSON.stringify(items));
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Дата не указана';
+      const date = new Date(value + 'T00:00:00');
+      const formatter = new Intl.DateTimeFormat('ru', { day: '2-digit', month: 'short', year: 'numeric' });
+      return formatter.format(date);
+    }
+
+    function setOwnerMode(enabled) {
+      isOwner = enabled;
+      localStorage.setItem('rematch:owner', enabled ? 'true' : 'false');
+      ownerPill.textContent = enabled ? 'Режим владельца' : 'Гостевой режим';
+      ownerToggle.textContent = enabled ? 'Выйти из режима' : 'Вход владельца';
+      form.style.display = enabled ? 'flex' : 'none';
+      adminHint.style.display = enabled ? 'none' : 'block';
+      render(tournaments);
+    }
+
+    function render(items) {
+      counterEl.textContent = items.length;
+      listEl.innerHTML = '';
+
+      if (!items.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'Пока нет турниров. Добавьте первый!';
+        listEl.appendChild(empty);
+        return;
+      }
+
+      items.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+
+        const title = document.createElement('h3');
+        title.textContent = item.name;
+        if (item.platform) {
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = item.platform;
+          title.appendChild(badge);
+        }
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const date = document.createElement('div');
+        date.textContent = formatDate(item.date);
+        meta.appendChild(date);
+
+        if (item.link) {
+          const link = document.createElement('a');
+          link.href = item.link;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = 'Перейти к турниру';
+          meta.appendChild(link);
+        }
+
+        if (item.notes) {
+          const notes = document.createElement('div');
+          notes.className = 'notes';
+          notes.textContent = item.notes;
+          card.appendChild(notes);
+        }
+
+        card.appendChild(title);
+
+        if (isOwner) {
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'delete';
+          removeBtn.textContent = 'Удалить';
+          removeBtn.addEventListener('click', () => {
+            const filtered = tournaments.filter((entry) => entry.id !== item.id);
+            tournaments = filtered;
+            saveTournaments(filtered);
+            render(filtered);
+          });
+          actions.appendChild(removeBtn);
+          card.appendChild(actions);
+        } else {
+          card.classList.add('readonly');
+        }
+        card.appendChild(meta);
+
+        listEl.appendChild(card);
+      });
+    }
+
+    let tournaments = loadTournaments();
+    setOwnerMode(isOwner);
+
+    ownerToggle.addEventListener('click', () => {
+      if (isOwner) {
+        setOwnerMode(false);
+        return;
+      }
+
+      const code = prompt('Введите код доступа владельца');
+      if (!code) return;
+      if (code === OWNER_CODE) {
+        setOwnerMode(true);
+      } else {
+        alert('Неверный код. Проверьте и попробуйте снова.');
+      }
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!isOwner) return;
+      const formData = new FormData(form);
+      const name = (formData.get('name') || '').toString().trim();
+      const platform = (formData.get('platform') || '').toString().trim();
+      const date = (formData.get('date') || '').toString();
+      const link = (formData.get('link') || '').toString().trim();
+      const notes = (formData.get('notes') || '').toString().trim();
+
+      if (!name) return;
+
+      const entry = {
+        id: crypto.randomUUID(),
+        name,
+        platform,
+        date,
+        link,
+        notes,
+      };
+
+      tournaments = [entry, ...tournaments];
+      saveTournaments(tournaments);
+      render(tournaments);
+      form.reset();
+    });
+  </script>
+</body>
+</html>
