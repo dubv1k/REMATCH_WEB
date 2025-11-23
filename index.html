@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rematch | Турниры</title>
+  <title>Rematch | Tournaments</title>
   <style>
     :root {
       --bg: #0f1115;
@@ -45,23 +45,10 @@
     .title {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-size: 28px;
       letter-spacing: 0.2px;
       font-weight: 700;
-    }
-
-    .title span {
-      display: inline-flex;
-      width: 40px;
-      height: 40px;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      background: linear-gradient(135deg, rgba(122, 224, 184, 0.3), rgba(122, 224, 184, 0));
-      border: 1px solid var(--border);
-      color: var(--accent);
-      font-weight: 800;
     }
 
     .subtitle {
@@ -291,55 +278,55 @@
     <div class="page">
       <div class="admin-bar">
         <div class="lang-picker">
-          <label for="language" id="lang-label">Язык</label>
+          <label for="language" id="lang-label">Language</label>
           <select id="language">
-            <option value="ru">Русский</option>
             <option value="en">English</option>
+            <option value="ru">Русский</option>
             <option value="es">Español</option>
             <option value="fr">Français</option>
             <option value="it">Italiano</option>
           </select>
         </div>
         <div class="admin-chip">
-          <span class="pill" id="owner-pill">Гостевой режим</span>
-          <button type="button" id="owner-toggle">Вход владельца</button>
+          <span class="pill" id="owner-pill">Guest mode</span>
+          <button type="button" id="owner-toggle">Owner login</button>
         </div>
       </div>
       <header>
-        <div class="title"><span>R</span><span id="title-text">Rematch турниры</span></div>
-        <p class="subtitle" id="subtitle">Удобный список турниров в Rematch: добавляйте события с разных площадок, храните ссылки и даты.</p>
+        <div class="title"><span id="title-text">Rematch tournaments</span></div>
+        <p class="subtitle" id="subtitle">A clean list of Rematch tournaments: collect events from any platform with links and dates.</p>
       </header>
 
       <div class="grid" id="grid">
         <section class="panel" id="admin-panel">
           <form id="tournament-form">
             <label>
-              <span id="name-label">Название турнира</span>
-              <input type="text" id="name" name="name" placeholder="Например, Winter Cup" required />
+              <span id="name-label">Tournament name</span>
+              <input type="text" id="name" name="name" placeholder="For example, Winter Cup" required />
             </label>
             <label>
-              <span id="platform-label">Площадка / организатор</span>
-              <input type="text" id="platform" name="platform" placeholder="ESL, Faceit, клуб..." />
+              <span id="platform-label">Platform / organizer</span>
+              <input type="text" id="platform" name="platform" placeholder="ESL, Faceit, club..." />
             </label>
             <label>
-              <span id="date-label">Дата</span>
+              <span id="date-label">Date</span>
               <input type="date" id="date" name="date" />
             </label>
             <label>
-              <span id="link-label">Ссылка на турнир</span>
+              <span id="link-label">Tournament link</span>
               <input type="url" id="link" name="link" placeholder="https://..." />
             </label>
             <label>
-              <span id="notes-label">Заметки</span>
-              <textarea id="notes" name="notes" placeholder="Формат, призовой фонд, часовой пояс..."></textarea>
+              <span id="notes-label">Notes</span>
+              <textarea id="notes" name="notes" placeholder="Format, prize pool, time zone..."></textarea>
             </label>
-            <button type="submit" id="submit-btn">Добавить турнир</button>
+            <button type="submit" id="submit-btn">Add tournament</button>
           </form>
         </section>
 
         <section class="panel list-panel" id="list-panel">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2 style="margin: 0; font-size: 18px;" id="list-title">Список турниров</h2>
+            <h2 style="margin: 0; font-size: 18px;" id="list-title">Tournament list</h2>
           <div class="badge" id="counter">0</div>
         </div>
         <div id="list" class="list" aria-live="polite"></div>
@@ -374,7 +361,7 @@
     const submitBtn = document.getElementById('submit-btn');
 
     const OWNER_CODE = 'rematch-admin';
-    const DEFAULT_LANG = 'ru';
+    const DEFAULT_LANG = 'en';
     const translations = {
       en: {
         pageTitle: 'Rematch | Tournaments',
