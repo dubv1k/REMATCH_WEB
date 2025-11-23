@@ -621,14 +621,15 @@
           meta.appendChild(link);
         }
 
+        card.appendChild(title);
+        card.appendChild(meta);
+
         if (item.notes) {
           const notes = document.createElement('div');
           notes.className = 'notes';
           notes.textContent = item.notes;
           card.appendChild(notes);
         }
-
-        card.appendChild(title);
 
         if (isOwner) {
           const actions = document.createElement('div');
@@ -648,7 +649,6 @@
         } else {
           card.classList.add('readonly');
         }
-        card.appendChild(meta);
 
         listEl.appendChild(card);
       });
