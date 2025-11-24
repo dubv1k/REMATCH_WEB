@@ -227,20 +227,6 @@
       color: var(--muted);
     }
 
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(122, 224, 184, 0.08);
-      border: 1px solid rgba(122, 224, 184, 0.35);
-      color: var(--accent);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
     .user-badge {
       display: inline-flex;
       align-items: center;
@@ -374,7 +360,6 @@
           </select>
         </div>
         <div class="admin-chip">
-          <span class="pill" id="owner-pill">Guest mode</span>
           <div class="user-badge" id="user-badge">
             <div class="user-avatar" id="user-avatar">?</div>
             <div class="user-meta">
@@ -432,7 +417,6 @@
     const counterEl = document.getElementById('counter');
     const form = document.getElementById('tournament-form');
     const ownerToggle = document.getElementById('owner-toggle');
-    const ownerPill = document.getElementById('owner-pill');
     const adminPanel = document.getElementById('admin-panel');
     const grid = document.getElementById('grid');
     const titleText = document.getElementById('title-text');
@@ -465,10 +449,6 @@
         pageTitle: 'Rematch | Tournaments',
         heading: 'Rematch tournaments',
         subtitle: 'A clean list of Rematch tournaments: collect events from any platform with links and dates.',
-        guestMode: 'Guest mode',
-        ownerMode: 'Owner mode',
-        ownerLogin: 'Owner login',
-        ownerLogout: 'Exit owner mode',
         signinDiscord: 'Sign in with Discord',
         signoutDiscord: 'Sign out',
         guestName: 'Guest',
@@ -493,18 +473,12 @@
         notesLabel: 'Notes',
         notesPlaceholder: 'Format, prize pool, time zone...',
         addButton: 'Add tournament',
-        ownerPrompt: 'Enter owner access code',
-        ownerError: 'Wrong code. Please try again.',
         dateLocale: 'en-US',
       },
       es: {
         pageTitle: 'Rematch | Torneos',
         heading: 'Torneos de Rematch',
         subtitle: 'Lista sencilla de torneos Rematch: reúne eventos de cualquier plataforma con enlaces y fechas.',
-        guestMode: 'Modo invitado',
-        ownerMode: 'Modo propietario',
-        ownerLogin: 'Acceso del propietario',
-        ownerLogout: 'Salir del modo propietario',
         signinDiscord: 'Iniciar sesión con Discord',
         signoutDiscord: 'Cerrar sesión',
         guestName: 'Invitado',
@@ -529,18 +503,12 @@
         notesLabel: 'Notas',
         notesPlaceholder: 'Formato, premio, zona horaria...',
         addButton: 'Agregar torneo',
-        ownerPrompt: 'Introduce el código de acceso del propietario',
-        ownerError: 'Código incorrecto. Intenta de nuevo.',
         dateLocale: 'es-ES',
       },
       ru: {
         pageTitle: 'Rematch | Турниры',
         heading: 'Rematch турниры',
         subtitle: 'Удобный список турниров в Rematch: добавляйте события с разных площадок, храните ссылки и даты.',
-        guestMode: 'Гостевой режим',
-        ownerMode: 'Режим владельца',
-        ownerLogin: 'Вход владельца',
-        ownerLogout: 'Выйти из режима',
         signinDiscord: 'Войти через Discord',
         signoutDiscord: 'Выйти',
         guestName: 'Гость',
@@ -565,18 +533,12 @@
         notesLabel: 'Заметки',
         notesPlaceholder: 'Формат, призовой фонд, часовой пояс...',
         addButton: 'Добавить турнир',
-        ownerPrompt: 'Введите код доступа владельца',
-        ownerError: 'Неверный код. Проверьте и попробуйте снова.',
         dateLocale: 'ru-RU',
       },
       fr: {
         pageTitle: 'Rematch | Tournois',
         heading: 'Tournois Rematch',
         subtitle: 'Liste simple des tournois Rematch : rassemblez des événements de toutes les plateformes avec liens et dates.',
-        guestMode: 'Mode invité',
-        ownerMode: 'Mode propriétaire',
-        ownerLogin: 'Connexion propriétaire',
-        ownerLogout: 'Quitter le mode propriétaire',
         signinDiscord: 'Se connecter via Discord',
         signoutDiscord: 'Se déconnecter',
         guestName: 'Invité',
@@ -601,18 +563,12 @@
         notesLabel: 'Notes',
         notesPlaceholder: 'Format, dotation, fuseau horaire...',
         addButton: 'Ajouter un tournoi',
-        ownerPrompt: 'Entrez le code d’accès propriétaire',
-        ownerError: 'Code incorrect. Réessayez.',
         dateLocale: 'fr-FR',
       },
       it: {
         pageTitle: 'Rematch | Tornei',
         heading: 'Tornei Rematch',
         subtitle: 'Lista semplice di tornei Rematch: raccogli eventi da ogni piattaforma con link e date.',
-        guestMode: 'Modalità ospite',
-        ownerMode: 'Modalità proprietario',
-        ownerLogin: 'Accesso proprietario',
-        ownerLogout: 'Esci dalla modalità proprietario',
         signinDiscord: 'Accedi con Discord',
         signoutDiscord: 'Esci',
         guestName: 'Ospite',
@@ -637,8 +593,6 @@
         notesLabel: 'Note',
         notesPlaceholder: 'Formato, montepremi, fuso orario...',
         addButton: 'Aggiungi torneo',
-        ownerPrompt: 'Inserisci il codice di accesso del proprietario',
-        ownerError: 'Codice errato. Riprova.',
         dateLocale: 'it-IT',
       },
     };
@@ -722,7 +676,6 @@
     }
 
     function updateOwnerUI() {
-      ownerPill.textContent = isOwner ? t('ownerMode') : t('guestMode');
       ownerToggle.textContent = currentUser ? t('signoutDiscord') : t('signinDiscord');
       form.style.display = isOwner ? 'flex' : 'none';
       adminPanel.style.display = isOwner ? 'block' : 'none';
