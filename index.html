@@ -439,6 +439,7 @@
     const userName = document.getElementById('user-name');
     const userEmail = document.getElementById('user-email');
     const userAvatar = document.getElementById('user-avatar');
+    const API_BASE = 'https://rematch-web-backend.vercel.app';
 
     const DISCORD_CLIENT_ID = 'YOUR_DISCORD_CLIENT_ID';
     const DISCORD_SCOPE = 'identify email';
@@ -624,11 +625,32 @@
     }
 
     async function loadTournaments() {
-      return readCachedTournaments();
+      try {
+        const res = await fetch(`${API_BASE}/api/tournaments`);
+        if (!res.ok) throw new Error('Bad status');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          localStorage.setItem('rematch:tournaments', JSON.stringify(data));
+          return data;
+        }
+        return readCachedTournaments();
+      } catch (err) {
+        console.error('Ошибка загрузки турниров с сервера, используем локальные', err);
+        return readCachedTournaments();
+      }
     }
 
     async function saveTournaments(items) {
       localStorage.setItem('rematch:tournaments', JSON.stringify(items));
+      try {
+        await fetch(`${API_BASE}/api/tournaments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(items),
+        });
+      } catch (err) {
+        console.error('Не удалось сохранить турниры на сервер', err);
+      }
     }
 
     function getLikeStorageKey() {
@@ -648,11 +670,46 @@
     }
 
     async function loadLikes() {
-      return readCachedLikes();
+      if (!currentUser?.id) {
+        return readCachedLikes();
+      }
+
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/likes?userId=${encodeURIComponent(currentUser.id)}`
+        );
+        if (!res.ok) throw new Error('Bad status');
+        const data = await res.json();
+        const arr = Array.isArray(data) ? data : [];
+        localStorage.setItem(getLikeStorageKey(), JSON.stringify(arr));
+        return new Set(arr);
+      } catch (err) {
+        console.error('Не удалось загрузить лайки с сервера, используем локальные', err);
+        return readCachedLikes();
+      }
     }
 
     async function saveLikes(set, changedId) {
-      localStorage.setItem(getLikeStorageKey(), JSON.stringify(Array.from(set)));
+      const arr = Array.from(set);
+      localStorage.setItem(getLikeStorageKey(), JSON.stringify(arr));
+
+      if (!currentUser?.id || !changedId) return;
+
+      const liked = set.has(changedId);
+
+      try {
+        await fetch(`${API_BASE}/api/likes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser.id,
+            tournamentId: changedId,
+            liked,
+          }),
+        });
+      } catch (err) {
+        console.error('Не удалось сохранить лайк на сервер', err);
+      }
     }
 
     function formatDate(value) {
