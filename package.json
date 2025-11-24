@@ -1,9 +1,0 @@
-{
-  "name": "rematch-web",
-  "version": "1.0.0",
-  "description": "Rematch tournaments SPA with Discord login and JSON-backed API",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  }
-}
