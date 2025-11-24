@@ -765,20 +765,42 @@
       updateOwnerUI();
       render(tournaments);
     }
+    function normalizeDate(value) {
+      if (!value) return null;
+      const time = Date.parse(value); // для формата YYYY-MM-DD всё ок
+      return Number.isNaN(time) ? null : time;
+    }
+  
+    function sortTournamentsByDate(items) {
+      return [...items].sort((a, b) => {
+        const da = normalizeDate(a.date);
+        const db = normalizeDate(b.date);
+  
+        // без даты — в самый низ
+        if (da === null && db === null) return 0;
+        if (da === null) return 1;
+        if (db === null) return -1;
 
+        // чем раньше дата, тем выше в списке
+        return da - db;
+      });
+    }
+    
     function render(items) {
-      counterEl.textContent = items.length;
+      const sorted = sortTournamentsByDate(items);
+    
+      counterEl.textContent = sorted.length;
       listEl.innerHTML = '';
-
-      if (!items.length) {
+    
+      if (!sorted.length) {
         const empty = document.createElement('div');
         empty.className = 'empty';
         empty.textContent = t('emptyState');
         listEl.appendChild(empty);
         return;
-      }
+    }
 
-      items.forEach((item) => {
+      sorted.forEach((item) => {
         const card = document.createElement('article');
         card.className = 'card';
 
